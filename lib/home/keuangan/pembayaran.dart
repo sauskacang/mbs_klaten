@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:android_smartscholl/core/client/dio_client.dart';
-import 'package:android_smartscholl/helper/constant.dart';
-import 'package:android_smartscholl/helper/currencyIdr.dart';
-import 'package:android_smartscholl/helper/sizeConfig.dart';
-import 'package:android_smartscholl/models/detailPembayaranModel.dart';
-import 'package:android_smartscholl/models/pembayaranModel.dart';
+import 'package:mbs_klaten/core/client/dio_client.dart';
+import 'package:mbs_klaten/helper/constant.dart';
+import 'package:mbs_klaten/helper/currencyIdr.dart';
+import 'package:mbs_klaten/helper/sizeConfig.dart';
+import 'package:mbs_klaten/models/detailPembayaranModel.dart';
+import 'package:mbs_klaten/models/pembayaranModel.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -56,13 +56,13 @@ class _PembayaranState extends ResumableState<Pembayaran> {
     var responseTagihan = await DioClient()
         .apiCall(url: '?token=$tagihanJwt', requestType: RequestType.get);
     var arrResponseTagihan = jsonDecode(responseTagihan.toString());
-    if (arrResponseTagihan['KodeResponse'] == 0 ||
-        arrResponseTagihan['KodeResponse'] == '0') {
+    if (arrResponseTagihan['KodeRespon'] == 1 ||
+        arrResponseTagihan['KodeRespon'] == '1') {
       pembayaranData = arrResponseTagihan['datas'] as List;
     }
     setState(() {
-      if (arrResponseTagihan['KodeResponse'] == 0 ||
-          arrResponseTagihan['KodeResponse'] == '0') {
+      if (arrResponseTagihan['KodeRespon'] == 1 ||
+          arrResponseTagihan['KodeRespon'] == '1') {
         pembayaranLnd = pembayaranLnd! +
             (pembayaranData as List<dynamic>).map((element) {
               var detailPembayaranData = element['det'] as List<dynamic>;
@@ -82,7 +82,7 @@ class _PembayaranState extends ResumableState<Pembayaran> {
               String inputDate = element['TanggalBayar'].toString();
               DateTime parsedDate = DateTime.parse(inputDate);
               String formattedDate =
-                  DateFormat('d MMMM yyyy, HH:mm').format(parsedDate);
+                  DateFormat('d MMMM yyyy, HH:mm', 'id_ID').format(parsedDate);
               return PembayaranModel(
                 namaTagihan: element['NamaTagihan'].toString(),
                 tahunAkademik: element['TahunAkademik'].toString(),
@@ -251,7 +251,7 @@ class _PembayaranState extends ResumableState<Pembayaran> {
                                                   color: Colors.grey),
                                             ),
                                             Text(
-                                              '${CurencyIdr.convertToIdr(pembayaranLnd![index].totalNominal, 2)}',
+                                              '${CurencyIdr.convertToIdr(pembayaranLnd![index].totalNominal, 0)}',
                                               style: const TextStyle(
                                                 fontSize: 20.0,
                                                 fontWeight: FontWeight.w500,
@@ -264,54 +264,54 @@ class _PembayaranState extends ResumableState<Pembayaran> {
                                     SizedBox(
                                       height: getProportionateScreenHeight(10),
                                     ),
-                                    ExpansionTile(
-                                      title: const Text("Lihat Detail"),
-                                      children: [
-                                        ListView.builder(
-                                            itemCount: pembayaranLnd![index]
-                                                .detailPembayaran
-                                                .length,
-                                            shrinkWrap: true,
-                                            itemBuilder: (contexX, indexX) {
-                                              return Column(
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Row(
-                                                      children: [
-                                                        Expanded(
-                                                            child: Text(
-                                                          "${pembayaranLnd![index].detailPembayaran[indexX].namaPost}",
-                                                          style: TextStyle(
-                                                              fontSize: 17,
-                                                              color: Colors
-                                                                  .grey[600],
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500),
-                                                        )),
-                                                        Expanded(
-                                                            child: Text(
-                                                          "${CurencyIdr.convertToIdr(pembayaranLnd![index].detailPembayaran[indexX].detailNominal, 2)}",
-                                                          style: TextStyle(
-                                                              fontSize: 17,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                          textAlign:
-                                                              TextAlign.right,
-                                                        )),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  // Tambahkan lebih banyak Row atau widget lain jika diperlukan
-                                                ],
-                                              );
-                                            })
-                                      ],
-                                    ),
+                                    // ExpansionTile(
+                                    //   title: const Text("Lihat Detail"),
+                                    //   children: [
+                                    //     ListView.builder(
+                                    //         itemCount: pembayaranLnd![index]
+                                    //             .detailPembayaran
+                                    //             .length,
+                                    //         shrinkWrap: true,
+                                    //         itemBuilder: (contexX, indexX) {
+                                    //           return Column(
+                                    //             children: [
+                                    //               Padding(
+                                    //                 padding:
+                                    //                     const EdgeInsets.all(
+                                    //                         8.0),
+                                    //                 child: Row(
+                                    //                   children: [
+                                    //                     Expanded(
+                                    //                         child: Text(
+                                    //                       "${pembayaranLnd![index].detailPembayaran[indexX].namaPost}",
+                                    //                       style: TextStyle(
+                                    //                           fontSize: 17,
+                                    //                           color: Colors
+                                    //                               .grey[600],
+                                    //                           fontWeight:
+                                    //                               FontWeight
+                                    //                                   .w500),
+                                    //                     )),
+                                    //                     Expanded(
+                                    //                         child: Text(
+                                    //                       "${CurencyIdr.convertToIdr(pembayaranLnd![index].detailPembayaran[indexX].detailNominal, 2)}",
+                                    //                       style: TextStyle(
+                                    //                           fontSize: 17,
+                                    //                           fontWeight:
+                                    //                               FontWeight
+                                    //                                   .bold),
+                                    //                       textAlign:
+                                    //                           TextAlign.right,
+                                    //                     )),
+                                    //                   ],
+                                    //                 ),
+                                    //               ),
+                                    //               // Tambahkan lebih banyak Row atau widget lain jika diperlukan
+                                    //             ],
+                                    //           );
+                                    //         })
+                                    //   ],
+                                    // ),
                                   ],
                                 ),
                               ),

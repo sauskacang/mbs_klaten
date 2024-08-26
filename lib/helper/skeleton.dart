@@ -1,4 +1,4 @@
-import 'package:android_smartscholl/helper/constant.dart';
+import 'package:mbs_klaten/helper/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 

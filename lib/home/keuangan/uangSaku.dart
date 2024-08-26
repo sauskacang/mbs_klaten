@@ -1,9 +1,15 @@
-import 'package:android_smartscholl/helper/constant.dart';
-import 'package:android_smartscholl/helper/currencyIdr.dart';
-import 'package:android_smartscholl/helper/sizeConfig.dart';
+import 'dart:convert';
+
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'package:mbs_klaten/core/client/dio_client.dart';
+import 'package:mbs_klaten/helper/constant.dart';
+import 'package:mbs_klaten/helper/currencyIdr.dart';
+import 'package:mbs_klaten/helper/sizeConfig.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mbs_klaten/models/transaksiModel.dart';
 import 'package:need_resume/need_resume.dart'; // tambahkan package intl
 
 final today = DateUtils.dateOnly(DateTime.now());
@@ -15,15 +21,33 @@ class UangSaku extends StatefulWidget {
 
 class _UangSakuState extends ResumableState<UangSaku> {
   List<DateTime?> _dialogCalendarPickerValue = [
-    DateTime(2021, 8, 10),
-    DateTime(2021, 8, 13),
+    DateTime.now(),
+    DateTime.now(),
   ];
   DateTime? startDate;
   DateTime? endDate;
 
+  bool isLoading = false;
+  List<TransaksiModel>? transaksiLnd = [];
+  var transaksi;
+  int page = 1;
+  bool isPaginate = false;
+  int totalSaldo = 0;
+  final scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
+    _dialogCalendarPickerValue[0] = DateTime(
+      _dialogCalendarPickerValue[0]!.year,
+      _dialogCalendarPickerValue[0]!.month - 1,
+      _dialogCalendarPickerValue[0]!.day,
+    );
+    _dialogCalendarPickerValue[1] = DateTime(
+      _dialogCalendarPickerValue[1]!.year,
+      _dialogCalendarPickerValue[1]!.month,
+      _dialogCalendarPickerValue[1]!.day,
+    );
     if (_dialogCalendarPickerValue.isNotEmpty) {
       startDate = _dialogCalendarPickerValue[0];
       endDate = _dialogCalendarPickerValue.length > 1
@@ -32,9 +56,102 @@ class _UangSakuState extends ResumableState<UangSaku> {
     }
   }
 
-  void getList() {}
+  @override
+  void onReady() {
+    super.onReady();
+    getList();
+    scrollController.addListener(_scrolListener);
+  }
 
-  var test = [];
+  @override
+  void onResume() {
+    super.onResume();
+    getList();
+    scrollController.addListener(_scrolListener);
+  }
+
+  Future<void> getList() async {
+    setState(() {
+      page = 1;
+      isLoading = true;
+    });
+    final dataMhs = await Hive.openBox('myToken');
+    var password = dataMhs.get('password');
+    var username = dataMhs.get('username');
+
+    final jwtTagihan = JWT({
+      'METHOD': 'TransaksiRequest',
+      'USERNAME': username,
+      'PASSWORD': password,
+      'startDate': '${startDate}',
+      'endDate': '${endDate}',
+    });
+    final transaksiJwt = jwtTagihan.sign(SecretKey("TokenJWT_MOBILE_ICT"));
+    var responseTransaksi = await DioClient().apiCall(
+        url: '?page=$page&token=$transaksiJwt', requestType: RequestType.get);
+    var arrresponseTransaksi = jsonDecode(responseTransaksi.toString());
+    transaksi = arrresponseTransaksi['datas'] as List;
+
+    setState(() {
+      transaksiLnd = (transaksi as List<dynamic>).map((element) {
+        String inputDate = element['TGL'].toString();
+        DateTime parsedDate = DateTime.parse(inputDate);
+        String formattedDate =
+            DateFormat('d MMMM yyyy, HH:mm', 'id_ID').format(parsedDate);
+        return TransaksiModel(
+          debit: int.parse(element['DEBET'].replaceAll('.', '')),
+          kredit: int.parse(element['KREDIT'].replaceAll('.', '')),
+          trxDate: formattedDate,
+          keterangan: element['KETERANGAN'].toString(),
+        );
+      }).toList();
+      totalSaldo = arrresponseTransaksi['total'] == null
+          ? 0
+          : int.parse(arrresponseTransaksi['total']);
+      isLoading = false;
+    });
+  }
+
+  Future<void> getPaginate() async {
+    setState(() {
+      isPaginate = true;
+    });
+    final dataMhs = await Hive.openBox('myToken');
+    var password = dataMhs.get('password');
+    var username = dataMhs.get('username');
+    final jwtTagihan = JWT({
+      'METHOD': 'TransaksiRequest',
+      'USERNAME': username,
+      'PASSWORD': password,
+      'startDate': '${startDate}',
+      'endDate': '${endDate}',
+    });
+    final transaksiJwt = jwtTagihan.sign(SecretKey("TokenJWT_MOBILE_ICT"));
+    var responseTransaksi = await DioClient().apiCall(
+        url: '?page=$page&token=$transaksiJwt', requestType: RequestType.get);
+    var arrresponseTransaksi = jsonDecode(responseTransaksi.toString());
+    transaksi = arrresponseTransaksi['datas'] as List;
+
+    setState(() {
+      transaksiLnd = transaksiLnd! +
+          (transaksi as List<dynamic>).map((element) {
+            String inputDate = element['TGL'].toString();
+            DateTime parsedDate = DateTime.parse(inputDate);
+            String formattedDate =
+                DateFormat('d MMMM yyyy, HH:mm', 'id_ID').format(parsedDate);
+            return TransaksiModel(
+              debit: int.parse(element['DEBET'].replaceAll('.', '')),
+              kredit: int.parse(element['KREDIT'].replaceAll('.', '')),
+              trxDate: formattedDate,
+              keterangan: element['KETERANGAN'].toString(),
+            );
+          }).toList();
+      totalSaldo = int.parse(arrresponseTransaksi['total']);
+
+      isPaginate = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,8 +176,8 @@ class _UangSakuState extends ResumableState<UangSaku> {
                       padding: EdgeInsets.only(
                           top: getProportionateScreenHeight(15)),
                       child: Text(
-                        "${CurencyIdr.convertToIdr(10000, 2)},",
-                        style: TextStyle(
+                        CurencyIdr.convertToIdr(totalSaldo, 0),
+                        style: const TextStyle(
                             fontSize: 35, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -91,7 +208,7 @@ class _UangSakuState extends ResumableState<UangSaku> {
                         Expanded(
                             child: Center(
                                 child: Text(
-                          '${startDate != null ? DateFormat('MMM, dd yyyy').format(startDate!) : 'not set'}',
+                          '${startDate != null ? DateFormat('dd MMMM yyyy', 'id_ID').format(startDate!) : 'not set'}',
                           style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -100,7 +217,7 @@ class _UangSakuState extends ResumableState<UangSaku> {
                         Expanded(
                             child: Center(
                                 child: Text(
-                          '${endDate != null ? DateFormat('MMM, dd yyyy').format(endDate!) : 'not set'}',
+                          '${endDate != null ? DateFormat('dd MMMM yyyy', 'id_ID').format(endDate!) : 'not set'}',
                           style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -112,6 +229,106 @@ class _UangSakuState extends ResumableState<UangSaku> {
                 ),
               ),
             ),
+            Container(
+                height: getProportionateScreenHeight(540),
+                padding: const EdgeInsets.all(8.0),
+                child: !isLoading
+                    ? RefreshIndicator(
+                        onRefresh: getList,
+                        child: Container(
+                          child: ListView.builder(
+                              itemCount: transaksiLnd!.length,
+                              controller: scrollController,
+                              shrinkWrap: true,
+                              itemBuilder:
+                                  // if (transaksiLnd )
+                                  (context, index) {
+                                if (index < transaksiLnd!.length) {
+                                  return Card(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        children: [
+                                          SizedBox(
+                                              height:
+                                                  getProportionateScreenHeight(
+                                                      10)),
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.calendar_month,
+                                                size: 30.0,
+                                              ),
+                                              SizedBox(
+                                                  width:
+                                                      getProportionateScreenWidth(
+                                                          25)),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    transaksiLnd![index]
+                                                        .keterangan,
+                                                    style: TextStyle(
+                                                      fontSize: 20.0,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    transaksiLnd![index]
+                                                        .trxDate,
+                                                    style: const TextStyle(
+                                                        fontSize: 14.0,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color: Colors.grey),
+                                                  ),
+                                                ],
+                                              ),
+                                              Spacer(),
+                                              transaksiLnd![index].debit == 0
+                                                  ? Text(
+                                                      CurencyIdr.convertToIdr(
+                                                          transaksiLnd![index]
+                                                                  .kredit -
+                                                              transaksiLnd![
+                                                                      index]
+                                                                  .debit,
+                                                          0),
+                                                      style: const TextStyle(
+                                                          color: Colors.green),
+                                                    )
+                                                  : Text(
+                                                      "- ${CurencyIdr.convertToIdr(transaksiLnd![index].debit - transaksiLnd![index].kredit, 0)}",
+                                                      style: const TextStyle(
+                                                          color: Colors.red),
+                                                    ),
+                                              SizedBox(
+                                                  width:
+                                                      getProportionateScreenWidth(
+                                                          10))
+                                            ],
+                                          ),
+                                          SizedBox(
+                                            height:
+                                                getProportionateScreenHeight(
+                                                    10),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  return Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
+                              }),
+                        ),
+                      )
+                    : Center(
+                        child: CircularProgressIndicator(),
+                      ))
           ],
         ),
       ),
@@ -260,7 +477,7 @@ class _UangSakuState extends ResumableState<UangSaku> {
                     _dialogCalendarPickerValue = values;
                     if (_dialogCalendarPickerValue.isNotEmpty) {
                       startDate = _dialogCalendarPickerValue[0];
-                      endDate = _dialogCalendarPickerValue.length > 1
+                      endDate = _dialogCalendarPickerValue.length >= 1
                           ? _dialogCalendarPickerValue[1]
                           : null;
                     } else {
@@ -269,6 +486,7 @@ class _UangSakuState extends ResumableState<UangSaku> {
                     }
                   });
                 }
+                getList();
               },
               child: Text('pilih tanggal'),
             ),
@@ -276,5 +494,21 @@ class _UangSakuState extends ResumableState<UangSaku> {
         ),
       ),
     );
+  }
+
+  Future<void> _scrolListener() async {
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
+      setState(() {
+        isPaginate = true;
+        page = page + 1;
+      });
+      getPaginate();
+      print("atah");
+      print("${page}");
+      setState(() {
+        isPaginate = false;
+      });
+    }
   }
 }

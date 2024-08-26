@@ -1,4 +1,4 @@
-package com.example.android_smartscholl
+package com.example.mbs_klaten
 
 import io.flutter.embedding.android.FlutterActivity
 

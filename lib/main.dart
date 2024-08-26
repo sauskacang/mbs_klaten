@@ -1,15 +1,17 @@
-import 'package:android_smartscholl/checkingAuth.dart';
-import 'package:android_smartscholl/helper/sizeConfig.dart';
-import 'package:android_smartscholl/login.dart';
+import 'package:mbs_klaten/checkingAuth.dart';
+import 'package:mbs_klaten/helper/sizeConfig.dart';
+import 'package:mbs_klaten/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 // import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
   await Hive.initFlutter();
   dotenv.env['BASE_URL'];
+  await initializeDateFormatting('id_ID', null);
 
   runApp(const MyApp());
 }

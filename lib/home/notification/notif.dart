@@ -1,5 +1,5 @@
-import 'package:android_smartscholl/helper/constant.dart';
-import 'package:android_smartscholl/helper/sizeConfig.dart';
+import 'package:mbs_klaten/helper/constant.dart';
+import 'package:mbs_klaten/helper/sizeConfig.dart';
 import 'package:flutter/material.dart';
 
 class Notif extends StatefulWidget {
@@ -68,7 +68,6 @@ class _TabContentState extends State<TabContent> {
               Container(
                   margin: EdgeInsets.all(getProportionateScreenWidth(10)),
                   child: Card(
-                    
                     child: Container(
                       margin: EdgeInsets.all(getProportionateScreenWidth(10)),
                       padding: EdgeInsets.symmetric(

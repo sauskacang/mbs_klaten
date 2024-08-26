@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:android_smartscholl/bottomNavigation.dart';
-import 'package:android_smartscholl/core/client/dio_client.dart';
+import 'package:mbs_klaten/bottomNavigation.dart';
+import 'package:mbs_klaten/core/client/dio_client.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:android_smartscholl/helper/constant.dart';
+import 'package:mbs_klaten/helper/constant.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -29,6 +29,7 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    
     final gambar = Hero(
       tag: 'logoict',
       child: CircleAvatar(
@@ -150,7 +151,6 @@ class _LoginState extends State<Login> {
                 boxToken.put('kelas', arrResponse['Kelas']);
                 boxToken.put('kelompok', arrResponse['Kelompok']);
                 boxToken.put('nova', arrResponse['NOVA']);
-                boxToken.put('novasaku', arrResponse['NOVASAKU']);
                 boxToken.put('keterangan', arrResponse['Keterangan']);
                 boxToken.put('username', tvUsername.text);
                 boxToken.put('password', tvPassword.text);
@@ -185,7 +185,11 @@ class _LoginState extends State<Login> {
                   isSuccess = false;
                 });
               }
-            } catch (e) {}
+            } catch (e) {
+              setState(() {
+                isSuccess = false;
+              });
+            }
           },
           padding: const EdgeInsets.all(20),
           color: kPrimaryColor,
@@ -208,7 +212,8 @@ class _LoginState extends State<Login> {
         },
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: Scaffold(
+          home: 
+          Scaffold(
             backgroundColor: Colors.white,
             extendBodyBehindAppBar: true,
             body: ListView(

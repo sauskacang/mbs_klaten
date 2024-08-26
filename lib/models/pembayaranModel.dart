@@ -1,4 +1,4 @@
-import 'package:android_smartscholl/models/detailPembayaranModel.dart';
+import 'package:mbs_klaten/models/detailPembayaranModel.dart';
 
 class PembayaranModel {
   PembayaranModel(

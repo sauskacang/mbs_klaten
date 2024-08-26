@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "android_smartscholl" "\0"
+            VALUE "FileDescription", "mbs_klaten" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "android_smartscholl" "\0"
+            VALUE "InternalName", "mbs_klaten" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "android_smartscholl.exe" "\0"
-            VALUE "ProductName", "android_smartscholl" "\0"
+            VALUE "OriginalFilename", "mbs_klaten.exe" "\0"
+            VALUE "ProductName", "mbs_klaten" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

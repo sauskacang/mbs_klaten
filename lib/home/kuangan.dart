@@ -1,10 +1,10 @@
-import 'package:android_smartscholl/helper/constant.dart';
-import 'package:android_smartscholl/home/keuangan/lihatTagihan.dart';
-import 'package:android_smartscholl/home/keuangan/panduanPembayaran.dart';
-import 'package:android_smartscholl/home/keuangan/pembayaran.dart';
-import 'package:android_smartscholl/home/keuangan/transaksiSpp.dart';
-import 'package:android_smartscholl/home/keuangan/uangSaku.dart';
-import 'package:android_smartscholl/login.dart';
+import 'package:mbs_klaten/helper/constant.dart';
+import 'package:mbs_klaten/home/keuangan/lihatTagihan.dart';
+import 'package:mbs_klaten/home/keuangan/panduanPembayaran.dart';
+import 'package:mbs_klaten/home/keuangan/pembayaran.dart';
+import 'package:mbs_klaten/home/keuangan/infaqDanTabungan.dart';
+import 'package:mbs_klaten/home/keuangan/uangSaku.dart';
+import 'package:mbs_klaten/login.dart';
 import 'package:flutter/material.dart';
 
 class Keuangan extends StatelessWidget {
@@ -110,7 +110,7 @@ class Keuangan extends StatelessWidget {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => TransaksiSpp()));
+                                builder: (context) => infaqDanTabungan()));
                       },
                       child: Card(
                         shape: RoundedRectangleBorder(
@@ -130,7 +130,7 @@ class Keuangan extends StatelessWidget {
                                 color: Colors.white,
                               ),
                               Text(
-                                'Lihat Transaksi \n SPP',
+                                'Infaq dan \n tabungan',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,

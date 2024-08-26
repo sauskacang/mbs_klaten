@@ -2,14 +2,14 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 
-import 'package:android_smartscholl/core/client/dio_client.dart';
-import 'package:android_smartscholl/helper/constant.dart';
-import 'package:android_smartscholl/helper/currencyIdr.dart';
-import 'package:android_smartscholl/helper/sizeConfig.dart';
-import 'package:android_smartscholl/helper/skeleton.dart';
-import 'package:android_smartscholl/home/gantipassword/gantiPassword.dart';
-import 'package:android_smartscholl/models/detailTagihanModel.dart';
-import 'package:android_smartscholl/models/tagihanModel.dart';
+import 'package:mbs_klaten/core/client/dio_client.dart';
+import 'package:mbs_klaten/helper/constant.dart';
+import 'package:mbs_klaten/helper/currencyIdr.dart';
+import 'package:mbs_klaten/helper/sizeConfig.dart';
+import 'package:mbs_klaten/helper/skeleton.dart';
+import 'package:mbs_klaten/home/gantipassword/gantiPassword.dart';
+import 'package:mbs_klaten/models/detailTagihanModel.dart';
+import 'package:mbs_klaten/models/tagihanModel.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,7 +26,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends ResumableState<HomeScreen> {
   var vaspp = "";
   String mahasiswa = "";
-  String vasaku = "";
   String jenjang = "";
   String kelas = "";
   int saldoUangSaku = 0;
@@ -63,7 +62,6 @@ class _HomeScreenState extends ResumableState<HomeScreen> {
     setState(() {
       isSuccess = true;
       mahasiswa = dataMhs.get('mahasiswa');
-      vasaku = dataMhs.get('novasaku');
       vaspp = dataMhs.get('nova');
       jenjang = dataMhs.get('jenjang');
       kelas = dataMhs.get('kelas');
@@ -121,29 +119,15 @@ class _HomeScreenState extends ResumableState<HomeScreen> {
     setState(() {
       if (isTagihan) {
         tagihanLnd = tagihanLnd! +
-            (tagihanData as List<dynamic>).map((element) {
-              var detailTagihanData = element['det'] as List<dynamic>;
-              List<DetailTagihanModel> detailTagihanList = detailTagihanData
-                  .map(
-                    (detailElement) => DetailTagihanModel(
-                      kodePost: detailElement['KodePost'].toString(),
-                      namaPost: detailElement['NamaPost'].toString(),
-                      detailNominal: int.parse(
-                          detailElement['DetailNominal'].replaceAll('.', '')),
-                    ),
-                  )
-                  .toList();
-
-              return TagihanModel(
-                namaTagihan: element['NamaTagihan'].toString(),
-                kodeTagihan: element['KodeTagihan'].toString(),
-                tahunAkademik: element['TahunAkademik'].toString(),
-                totalNominal:
-                    int.parse(element['TotalNominal'].replaceAll('.', '')),
-                detailTagihan: detailTagihanList,
-              );
-            }).toList();
-
+            (tagihanData as List<dynamic>)
+                .map((element) => TagihanModel(
+                      namaTagihan: element['NamaTagihan'].toString(),
+                      kodeTagihan: element['KodeTagihan'].toString(),
+                      tahunAkademik: element['TahunAkademik'].toString(),
+                      totalNominal: int.parse(
+                          element['TotalNominal'].replaceAll('.', '')),
+                    ))
+                .toList();
         totaltagihan =
             tagihanLnd!.fold(0, (sum, item) => sum + item.totalNominal);
       }
@@ -207,7 +191,7 @@ class _HomeScreenState extends ResumableState<HomeScreen> {
                     Container(
                       // padding: const EdgeInsets.all(0),
                       child: Text(
-                        '$vasaku',
+                        '$vaspp',
                         textAlign: TextAlign.left,
                         style: const TextStyle(
                           color: Colors.black,
@@ -238,92 +222,90 @@ class _HomeScreenState extends ResumableState<HomeScreen> {
               // height: getProportionateScreenHeight(250),
               child: Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                      // physics: const NeverScrollableScrollPhysics(),
-                      children: [
-                        Column(children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text('Tagihan Belum Terbayar : ',
+                  child: Column(children: [
+                    Column(children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text('Tagihan Belum Terbayar : ',
+                            style: TextStyle(
+                                fontSize: getProportionateScreenWidth(12),
+                                color: Colors.grey)),
+                      ),
+                      const Divider(
+                        // thickness: 1,
+                        indent: 10,
+                        endIndent: 10,
+                      ),
+                    ]),
+                    ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: tagihanLnd!.length,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return Column(
+                            children: [
+                              Align(
+                                  alignment: Alignment.bottomLeft,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 9, bottom: 9, left: 20),
+                                    child: Text(
+                                        ' ${tagihanLnd![index].namaTagihan}  ${CurencyIdr.convertToIdr(tagihanLnd![index].totalNominal, 0)}',
+                                        style: TextStyle(
+                                            fontSize:
+                                                getProportionateScreenWidth(
+                                                    15))),
+                                  )),
+                              const Divider(
+                                // thickness: 1,
+                                indent: 10,
+                                endIndent: 10,
+                              ),
+                            ],
+                          );
+                        }),
+                    Column(children: [
+                      Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                top: 9, bottom: 9, left: 20),
+                            child: Text(
+                                'Tagihan Akan Lunas Jika Saldo SPP lebih besar atau sama dengan tagihan ',
                                 style: TextStyle(
-                                    fontSize: getProportionateScreenWidth(12),
-                                    color: Colors.grey)),
-                          ),
-                          const Divider(
-                            // thickness: 1,
-                            indent: 10,
-                            endIndent: 10,
-                          ),
-                        ]),
-                        ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: tagihanLnd!.length,
-                            itemBuilder: (context, index) {
-                              return Column(
-                                children: [
-                                  Align(
-                                      alignment: Alignment.bottomLeft,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 9, bottom: 9, left: 20),
-                                        child: Text(
-                                            ' ${tagihanLnd![index].namaTagihan}  ${CurencyIdr.convertToIdr(tagihanLnd![index].totalNominal, 0)}',
-                                            style: TextStyle(
-                                                fontSize:
-                                                    getProportionateScreenWidth(
-                                                        15))),
-                                      )),
-                                  const Divider(
-                                    // thickness: 1,
-                                    indent: 10,
-                                    endIndent: 10,
-                                  ),
-                                ],
-                              );
-                            }),
-                        Column(children: [
-                          Align(
-                              alignment: Alignment.bottomLeft,
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 9, bottom: 9, left: 20),
-                                child: Text(
-                                    'Tagihan Akan Lunas Jika Saldo SPP lebih besar atau sama dengan tagihan ',
-                                    style: TextStyle(
-                                        fontSize:
-                                            getProportionateScreenWidth(15))),
-                              )),
-                          const Divider(
-                            // thickness: 1,
-                            indent: 10,
-                            endIndent: 10,
-                          ),
-                        ]),
-                        Column(children: [
-                          Align(
-                              alignment: Alignment.bottomLeft,
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 9, bottom: 9, left: 20),
-                                child: Text(
-                                    'Bayar sejumlah ${CurencyIdr.convertToIdr(totalBayar, 0)} untuk melunasi tagihan',
-                                    style: TextStyle(
-                                        fontSize:
-                                            getProportionateScreenWidth(15))),
-                              )),
-                          const Divider(
-                            // thickness: 1,
-                            indent: 10,
-                            endIndent: 10,
-                          ),
-                        ]),
-                      ])), //Padding
+                                    fontSize: getProportionateScreenWidth(15))),
+                          )),
+                      const Divider(
+                        // thickness: 1,
+                        indent: 10,
+                        endIndent: 10,
+                      ),
+                    ]),
+                    Column(children: [
+                      Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                top: 9, bottom: 9, left: 20),
+                            child: Text(
+                                'Bayar sejumlah ${CurencyIdr.convertToIdr(totalBayar, 0)} untuk melunasi tagihan',
+                                style: TextStyle(
+                                    fontSize: getProportionateScreenWidth(15))),
+                          )),
+                      const Divider(
+                        // thickness: 1,
+                        indent: 10,
+                        endIndent: 10,
+                      ),
+                    ]),
+                  ])), //Padding
             ), //SizedBox
           ),
         ],
       ), //Card
     );
-    final button = Container(
+    final button = 
+    Container(
       margin: EdgeInsets.all(20),
       child: MaterialButton(
           shape: RoundedRectangleBorder(
@@ -351,7 +333,7 @@ class _HomeScreenState extends ResumableState<HomeScreen> {
             color: Colors.white,
             child: SizedBox(
               width: getProportionateScreenWidth(340),
-              height: getProportionateScreenHeight(400),
+              height: getProportionateScreenHeight(330),
               child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: ListView(
@@ -383,42 +365,6 @@ class _HomeScreenState extends ResumableState<HomeScreen> {
                                     icon: Icon(Icons.copy),
                                     onPressed: () {
                                       _copyToClipboard(context, '$vaspp');
-                                    },
-                                  ),
-                                ],
-                              )),
-                          const Divider(
-                            // thickness: 1,
-                            indent: 10,
-                            endIndent: 10,
-                          ),
-                        ]),
-                        Column(children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            // padding: const EdgeInsets.all(11.0),
-                            child: Text('No Va Saku',
-                                style: TextStyle(
-                                    fontSize: getProportionateScreenWidth(12),
-                                    color: Colors.grey)),
-                          ),
-                          Align(
-                              alignment: Alignment.bottomLeft,
-                              child: Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 9, bottom: 9, left: 20),
-                                    child: Text('$vasaku',
-                                        style: TextStyle(
-                                            fontSize:
-                                                getProportionateScreenWidth(
-                                                    15))),
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.copy),
-                                    onPressed: () {
-                                      _copyToClipboard(context, '$vasaku');
                                     },
                                   ),
                                 ],

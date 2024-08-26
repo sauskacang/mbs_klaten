@@ -1,7 +1,7 @@
-import 'package:android_smartscholl/bottomNavigation.dart';
-import 'package:android_smartscholl/helper/sizeConfig.dart';
-import 'package:android_smartscholl/home/homeScreen.dart';
-import 'package:android_smartscholl/login.dart';
+import 'package:mbs_klaten/bottomNavigation.dart';
+import 'package:mbs_klaten/helper/sizeConfig.dart';
+import 'package:mbs_klaten/home/homeScreen.dart';
+import 'package:mbs_klaten/login.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 

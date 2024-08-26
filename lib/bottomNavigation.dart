@@ -1,23 +1,30 @@
 import 'dart:io';
 
-import 'package:android_smartscholl/helper/constant.dart';
-import 'package:android_smartscholl/helper/sizeConfig.dart';
-import 'package:android_smartscholl/home/homeScreen.dart';
-import 'package:android_smartscholl/home/kuangan.dart';
-import 'package:android_smartscholl/home/notification/notif.dart';
-import 'package:android_smartscholl/login.dart';
+import 'package:mbs_klaten/helper/constant.dart';
+import 'package:mbs_klaten/helper/sizeConfig.dart';
+import 'package:mbs_klaten/home/homeScreen.dart';
+import 'package:mbs_klaten/home/kuangan.dart';
+import 'package:mbs_klaten/home/notification/notif.dart';
+import 'package:mbs_klaten/login.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 
 class Bottomvavigation extends StatefulWidget {
-  const Bottomvavigation({Key? key}) : super(key: key);
+  const Bottomvavigation({Key? key, this.index}) : super(key: key);
 
+  final int? index;
   @override
   _BottomvavigationState createState() => _BottomvavigationState();
 }
 
 class _BottomvavigationState extends State<Bottomvavigation> {
   int _selectedIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.index ?? 0; // Use 0 if widget.index is null
+  }
+
   static const List _pages = [
     HomeScreen(),
     Keuangan(),

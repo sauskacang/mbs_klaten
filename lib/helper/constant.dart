@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:android_smartscholl/helper/sizeConfig.dart';
+import 'package:mbs_klaten/helper/sizeConfig.dart';
 
 const kPrimaryColor = Color.fromARGB(255, 170, 0, 173);
 const kPrimaryLightColor = Color(0xFFFFECDF);

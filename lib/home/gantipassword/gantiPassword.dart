@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:android_smartscholl/bottomNavigation.dart';
-import 'package:android_smartscholl/core/client/dio_client.dart';
-import 'package:android_smartscholl/helper/constant.dart';
-import 'package:android_smartscholl/login.dart';
+import 'package:mbs_klaten/bottomNavigation.dart';
+import 'package:mbs_klaten/core/client/dio_client.dart';
+import 'package:mbs_klaten/helper/constant.dart';
+import 'package:mbs_klaten/login.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -125,9 +125,11 @@ class _GantiPasswordState extends ResumableState<GantiPassword> {
       ),
     );
 
-    final changeButton = Padding(
+    final changeButton = 
+    Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: MaterialButton(
+      child: 
+      MaterialButton(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
